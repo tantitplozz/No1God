@@ -1,0 +1,13 @@
+{"level":"info","ts":1754491678.019743,"caller":"cmd/pull.go:12","msg":"Pulling state from remote storage"}
+{"level":"info","ts":1754491678.1119459,"caller":"cmd/pull.go:26","msg":"No previous data found so the etag is empty"}
+{"level":"warn","ts":1754491678.1136258,"caller":"utils/utils.go:23","msg":"Failed to fetch CDP WebSocket URL, will retry","error":"Get \"http://localhost:9222/json/version\": dial tcp [::1]:9222: connect: connection refused"}
+{"level":"warn","ts":1754491678.6147523,"caller":"utils/utils.go:23","msg":"Failed to fetch CDP WebSocket URL, will retry","error":"Get \"http://localhost:9222/json/version\": dial tcp [::1]:9222: connect: connection refused"}
+{"level":"warn","ts":1754491679.1160827,"caller":"utils/utils.go:23","msg":"Failed to fetch CDP WebSocket URL, will retry","error":"Get \"http://localhost:9222/json/version\": dial tcp [::1]:9222: connect: connection refused"}
+{"level":"warn","ts":1754491679.6173222,"caller":"utils/utils.go:23","msg":"Failed to fetch CDP WebSocket URL, will retry","error":"Get \"http://localhost:9222/json/version\": dial tcp [::1]:9222: connect: connection refused"}
+{"level":"warn","ts":1754491680.1187544,"caller":"utils/utils.go:23","msg":"Failed to fetch CDP WebSocket URL, will retry","error":"Get \"http://localhost:9222/json/version\": dial tcp [::1]:9222: connect: connection refused"}
+{"level":"warn","ts":1754491680.6208386,"caller":"utils/utils.go:23","msg":"Failed to fetch CDP WebSocket URL, will retry","error":"Get \"http://localhost:9222/json/version\": dial tcp [::1]:9222: connect: connection refused"}
+{"level":"warn","ts":1754491681.1220276,"caller":"utils/utils.go:23","msg":"Failed to fetch CDP WebSocket URL, will retry","error":"Get \"http://localhost:9222/json/version\": dial tcp [::1]:9222: connect: connection refused"}
+{"level":"info","ts":1754491681.9831557,"caller":"watcher/cdp_watcher.go:99","msg":"Watching targets"}
+{"level":"info","ts":1754491682.1111207,"caller":"watcher/cdp_watcher.go:117","msg":"Initial target found","targetID":"DA92B4CD9D5F611F197EC1886ACE4836"}
+{"level":"info","ts":1754491682.1155868,"caller":"watcher/cdp_watcher.go:143","msg":"Target info changed","targetID":"DA92B4CD9D5F611F197EC1886ACE4836"}
+{"level":"info","ts":1754491684.1114464,"caller":"cmd/run.go:71","msg":"Put is not allowed"}

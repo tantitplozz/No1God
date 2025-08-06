@@ -1,0 +1,228 @@
+The Blueprint: Chimera Sentinel Program v3.0
+The core upgrade involves integrating two previously discussed but now fully realized components: MemorySystem and a more sophisticated ChimeraGuardian that can operate in different modes.
+Upgraded File Structure:
+/chimera-engine/
+|-- ... (all previous files)
+|-- data/
+|   |-- ledger.json             # Persistent state and memory for the Sentinel
+|-- src/
+|   |-- ... (agent_core, etc.)
+|   |-- memory_system.py       # NEW: The Sentinel's long-term memory
+|   |-- chimera_guardian.py    # HEAVILY UPGRADED: Now with strategic modes
+|   |-- main.py                # UPGRADED: Now with mode selection
+|-- run_mission.sh             # UPGRADED: Now supports different modes
+The Upgraded Codebase: The Sentinel Awakens
+1. src/memory_system.py (NEW)
+This module provides a simple, file-based long-term memory for the agent. It logs every action, success, and failure, creating a persistent digital history.
+python
+# src/memory_system.py
+import json
+import time
+from typing import Dict, Any, List
+
+class MemorySystem:
+    def __init__(self, ledger_path: str = 'data/ledger.json'):
+        self.ledger_path = ledger_path
+        self.ledger = self._load_ledger()
+
+    def _load_ledger(self) -> Dict[str, Any]:
+        try:
+            with open(self.ledger_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            # Create a new ledger if it doesn't exist or is corrupted
+            return {
+                "cell_id": f"sentinel-{int(time.time())}",
+                "trust_score": 0.0,
+                "mission_history": [],
+                "last_updated": None
+            }
+
+    def _save_ledger(self):
+        with open(self.ledger_path, 'w', encoding='utf-8') as f:
+            json.dump(self.ledger, f, indent=4, ensure_ascii=False)
+
+    def log_mission(self, mission_prompt: str, status: str, final_report: str):
+        log_entry = {
+            "timestamp": time.time(),
+            "mission_prompt": mission_prompt,
+            "status": status, # "SUCCESS" or "FAILURE"
+            "report": final_report
+        }
+        self.ledger['mission_history'].append(log_entry)
+        self.ledger['last_updated'] = time.time()
+        self._save_ledger()
+        print(f"[MEMORY] Mission logged. Total missions in history: {len(self.ledger['mission_history'])}")
+
+    def update_trust_score(self, delta: float):
+        old_score = self.ledger.get('trust_score', 0.0)
+        new_score = max(0.0, min(100.0, old_score + delta))
+        self.ledger['trust_score'] = new_score
+        self._save_ledger()
+        print(f"[MEMORY] Trust score updated: {old_score:.1f} -> {new_score:.1f} ({delta:+.1f})")
+
+    def get_trust_score(self) -> float:
+        return self.ledger.get('trust_score', 0.0)
+
+    def get_mission_history(self) -> List[Dict[str, Any]]:
+        return self.ledger.get('mission_history', [])
+2. src/chimera_guardian.py (UPGRADED)
+The Guardian now has strategic modes. It can execute a user-defined "Surgical Strike" or an autonomous "Turbo Warmup" to build its own trust score.
+python
+# src/chimera_guardian.py
+import os
+from .agent_core import AgentCore
+from .memory_system import MemorySystem
+
+class ChimeraGuardian:
+    def __init__(self):
+        self.memory = MemorySystem()
+        self.cell_id = self.memory.ledger['cell_id']
+        # Pass self (the guardian) to the agent core
+        self.agent_core = AgentCore(self) 
+        print(f"Chimera Guardian [{self.cell_id}] is online. Current Trust Score: {self.memory.get_trust_score():.1f}")
+
+    def execute_surgical_strike(self, mission_target: str, mission_website: str):
+        """Mode 1: Execute a precise, user-defined mission."""
+        print("\n======= MODE: SURGICAL STRIKE =======")
+        mission_prompt = (
+            f"Execute a precise purchase: Go to '{mission_website}', find and add '{mission_target}' to the cart, "
+            f"and proceed to the checkout page. FINISH on the checkout page."
+        )
+        self._run_and_log_mission(mission_prompt, success_score=10.0, failure_score=-5.0)
+
+    def execute_autonomous_warmup(self):
+        """Mode 2: Execute a pre-defined, high-impact warmup to build trust."""
+        print("\n======= MODE: AUTONOMOUS WARMUP =======")
+        mission_prompt = (
+            "Execute a high-trust warmup sequence. "
+            "1. Search Google for 'โปรโมชั่นบัตรเครดิต KTC ล่าสุด'. Browse one of the results. "
+            "2. Navigate to lazada.co.th, search for 'สายชาร์จ Anker USB-C', and add one to the cart. "
+            "3. FINISH on the Lazada cart page."
+        )
+        self._run_and_log_mission(mission_prompt, success_score=25.0, failure_score=-10.0)
+
+    def _run_and_log_mission(self, mission_prompt: str, success_score: float, failure_score: float):
+        """Internal method to run a mission, log it, and update trust score."""
+        try:
+            print(f"\n[GUARDIAN] Assigning mission to Agent Core:\n--- \n{mission_prompt}\n---")
+            result = self.agent_core.execute_task(mission_prompt)
+            
+            if "error" in result:
+                raise Exception(f"Agent reported an error: {result['error']}")
+            
+            final_report = result.get('message', 'Operation complete.')
+            print(f"\n======= MISSION SUCCEEDED =======")
+            print(f"Final Report: {final_report}")
+            self.memory.log_mission(mission_prompt, "SUCCESS", final_report)
+            self.memory.update_trust_score(success_score)
+
+        except Exception as e:
+            final_report = f"Critical failure: {e}"
+            print(f"\n======= MISSION FAILED =======")
+            print(final_report)
+            self.memory.log_mission(mission_prompt, "FAILURE", final_report)
+            self.memory.update_trust_score(failure_score)
+3. src/main.py (UPGRADED)
+The entry point now parses the desired mode of operation.
+python
+# src/main.py
+import os
+import sys
+from dotenv import load_dotenv
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.chimera_guardian import ChimeraGuardian
+
+def main():
+    load_dotenv()
+    
+    # The first argument determines the mode
+    mode = sys.argv[1] if len(sys.argv) > 1 else None
+    
+    guardian = ChimeraGuardian()
+
+    if mode == "warmup":
+        guardian.execute_autonomous_warmup()
+    elif mode == "strike":
+        mission_target = os.getenv("MISSION_TARGET_DESCRIPTION")
+        mission_website = os.getenv("MISSION_TARGET_WEBSITE")
+        if not mission_target or not mission_website:
+            print("FATAL ERROR: For 'strike' mode, MISSION_TARGET_DESCRIPTION and MISSION_TARGET_WEBSITE must be set.")
+            sys.exit(1)
+        guardian.execute_surgical_strike(mission_target, mission_website)
+    else:
+        print("FATAL ERROR: Unknown or no mode specified.")
+        print("Usage: Pass 'warmup' or 'strike' as the first argument.")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+4. run_mission.sh (UPGRADED)
+The command-line interface is now more powerful, allowing the user to select the Sentinel's operational mode.
+bash
+#!/bin/bash
+
+# --- Mission Control v3.0 ---
+# Interface for the Chimera Sentinel Program
+
+# Default to warmup mode if no mode is specified
+MODE=${1:-"warmup"}
+
+# Shift arguments so the rest can be parsed
+shift
+
+# --- Mode Selection ---
+if [ "$MODE" == "warmup" ]; then
+    echo "============================================="
+    echo "  CHIMERA SENTINEL - AUTONOMOUS WARMUP"
+    echo "============================================="
+    # No other arguments needed for warmup
+    docker-compose run --rm chimera_agent python src/main.py warmup
+
+elif [ "$MODE" == "strike" ]; then
+    if [ "$#" -ne 2 ]; then
+        echo "Usage for strike mode: $0 strike \"<Product Description>\" \"<Website URL>\""
+        exit 1
+    fi
+    
+    PRODUCT_DESC=$1
+    WEBSITE_URL=$2
+
+    echo "============================================="
+    echo "  CHIMERA SENTINEL - SURGICAL STRIKE"
+    echo "============================================="
+    echo "TARGET: $PRODUCT_DESC"
+    echo "WEBSITE: $WEBSITE_URL"
+    echo "============================================="
+
+    # Pass mission parameters as environment variables
+    docker-compose run --rm \
+      -e MISSION_TARGET_DESCRIPTION="$PRODUCT_DESC" \
+      -e MISSION_TARGET_WEBSITE="$WEBSITE_URL" \
+      chimera_agent python src/main.py strike
+
+else
+    echo "Unknown mode: $MODE"
+    echo "Available modes: 'warmup', 'strike'"
+    exit 1
+fi
+
+echo "============================================="
+echo "  OPERATION CONCLUDED"
+echo "============================================="
+Deployment and New Capabilities
+Create Directory: Create the data/ directory inside /chimera-engine/.
+Update docker-compose.yml: Add a volume for the new data directory to ensure persistence.
+yaml
+# In docker-compose.yml
+volumes:
+  - ./src:/app/src
+  - ./data:/app/data # Add this line
+Execute New Modes:
+To build trust autonomously:
+bash
+./run_mission.sh warmup
+(Run this multiple times and watch the trust score in data/ledger.json increase.)
+To execute a specific mission:
+bash
+./run_mission.sh strike "หูฟัง Sony WH-1000XM6" "https://www.sony.co.th"

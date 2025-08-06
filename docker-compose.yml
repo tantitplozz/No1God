@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: agent.Dockerfile
+    container_name: chimera_agent
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_BASE=${OPENAI_API_BASE}
+      - VAULT_MASTER_KEY=${VAULT_MASTER_KEY}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - rabbitmq
+    networks:
+      - chimera_network
+
+  ui:
+    build:
+      context: .
+      dockerfile: ui.Dockerfile
+    container_name: chimera_ui
+    ports:
+      - "8501:8501"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    depends_on:
+      - rabbitmq
+    networks:
+      - chimera_network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: chimera_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - chimera_network
+
+networks:
+  chimera_network:
+    driver: bridge
+
+

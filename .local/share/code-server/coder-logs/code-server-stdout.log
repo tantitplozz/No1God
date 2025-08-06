@@ -1,0 +1,8 @@
+[2025-08-06T14:47:59.213Z] info  code-server 4.102.3 6f3d0a7e5ae5f6623e1963e96adabc3287386006
+[2025-08-06T14:47:59.226Z] info  Using user-data-dir /home/ubuntu/.local/share/code-server
+[2025-08-06T14:47:59.244Z] info  Using config file /home/ubuntu/.config/code-server/config.yaml
+[2025-08-06T14:47:59.244Z] info  HTTP server listening on http://0.0.0.0:8329/
+[2025-08-06T14:47:59.244Z] info    - Authentication is enabled
+[2025-08-06T14:47:59.244Z] info      - Using password from /home/ubuntu/.config/code-server/config.yaml
+[2025-08-06T14:47:59.244Z] info    - Not serving HTTPS
+[2025-08-06T14:47:59.244Z] info  Session server listening on /home/ubuntu/.local/share/code-server/code-server-ipc.sock

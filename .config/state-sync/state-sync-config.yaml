@@ -1,0 +1,4 @@
+browser-port: '9222'
+pull: true
+push: false
+s3-get-url: https://vida-private.s3.us-east-1.amazonaws.com/browser_data/92044772/HjadirdYDYxeHsno2cJXfo.json?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZV3A2ECZOFHVT4UV%2F20250806%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250806T144757Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=120d10df4f8ade546681d8ec4808951d692977d9913856eb66a9ca6b71bca41a
